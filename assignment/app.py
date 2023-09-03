@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import os, csv, time
 
+from pathlib import Path    # to handle Windows/Unix filepaths
+
 """
 Assignment Instructions : 
 
@@ -48,7 +50,20 @@ def get_html(link: str):
 # Writes to given title to file synchronously
 def write_to_file(sitename: str, title: str):
     # TODO : write the title to a file in the /out directory named : <sitename>.txt
-    pass
+    # pass
+
+    # base path
+    base_path = os.getcwd()
+
+    # Make sure spaces in sitename are handled
+    # file_path = "{}/out/sync/{}.txt".format(base_path, sitename)
+    folder_path = Path("./out/sync/")
+    folder_path.mkdir( parents=True, exist_ok=True ) # create subfolder 'sync' if not exists
+
+    file_path = folder_path / sitename 
+
+    with open(file_path, "w") as output_file:
+        output_file.write(title)
 
 
 # TODO : convert to async
@@ -95,6 +110,12 @@ def main():
     # TODO : convert to async
     # TODO : read csv of links in dictionary format
     # TODO : call the scrape function on them one by one
+    with open(dataset_path) as csvfile:
+        csvDictReader = csv.DictReader(csvfile)
+
+        for site_dict in csvDictReader:
+            scrape(site_dict)
 
 
-main()
+if __name__ == "__main__":
+    main()
