@@ -41,19 +41,29 @@ def get_html(link: str):
             return (res.content.decode("utf-8"), None)
         else:
             return (None, Exception("No html!"))
-    except:
+    except Exception as e:
         return (None, Exception("Error!"))
 
 
 # Writes to given title to file synchronously
 def write_to_file(sitename: str, title: str):
     # TODO : write the title to a file in the /out directory named : <sitename>.txt
-    pass
+    # pass
+
+    base_path = os.getcwd()
+    output_path = base_path + "/out/sync3"
+
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    with open(output_path + f"/{sitename}.txt", "w") as outfile:
+        outfile.write(title)
 
 
 # TODO : convert to async
 # scrape the given link synchronously
 def scrape(website: dict):
+    os.system("") # enables ANSI escape sequences in terminal
     try:
         (html, err) = get_html(website[DOMAIN_NAME])
 
@@ -95,6 +105,13 @@ def main():
     # TODO : convert to async
     # TODO : read csv of links in dictionary format
     # TODO : call the scrape function on them one by one
+
+    csvgen = (row for row in open(dataset_path, "r"))
+    next(csvgen) # to skip header row
+
+    for row in csvgen:
+        site, domain_name = row.strip().split(',')
+        scrape({ SITE: site, DOMAIN_NAME: domain_name })
 
 
 main()
