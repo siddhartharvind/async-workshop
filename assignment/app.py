@@ -56,7 +56,7 @@ def write_to_file(sitename: str, title: str):
     # pass
 
     base_path = os.getcwd()
-    output_path = base_path + "/out/sync3"
+    output_path = base_path + "/out/sync6"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -122,4 +122,7 @@ def main():
         scrape({ SITE: site, DOMAIN_NAME: domain_name })
 
 
+start = time.time()
 main()
+end = time.time()
+print(f"Completed tasks in {end - start} seconds")
