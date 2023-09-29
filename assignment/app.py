@@ -58,7 +58,7 @@ def write_to_file(sitename: str, title: str):
     # pass
 
     base_path = os.getcwd()
-    output_path = base_path + "/out/async6"
+    output_path = base_path + "/out/async7"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -132,4 +132,7 @@ async def main():
 
 
 # main()
+start = time.time()
 asyncio.run(main())
+end = time.time()
+print(f"Completed tasks in {end - start} seconds")
