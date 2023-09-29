@@ -122,7 +122,8 @@ def main():
         scrape({ SITE: site, DOMAIN_NAME: domain_name })
 
 
-start = time.time()
-main()
-end = time.time()
-print(f"Completed tasks in {end - start} seconds")
+if __name__ == "__main__":
+    start = time.time()
+    main()
+    end = time.time()
+    print(f"Completed tasks in {end - start} seconds")
