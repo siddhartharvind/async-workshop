@@ -72,7 +72,8 @@ def scrape(website: dict):
             # HINT : remember that -> writing to file is blocking
             # TODO : convert to async/threading?
             write_to_file(website[SITE], msg)
-            print(website[SITE], " : ", website[DOMAIN_NAME], "error!")
+            # print(website[SITE], " : ", website[DOMAIN_NAME], "error!")
+            print(website[SITE], " : ", website[DOMAIN_NAME], "\033[1;31merror!\033[m")
             return
 
         soup = BeautifulSoup(html, "html5lib")
@@ -81,14 +82,16 @@ def scrape(website: dict):
 
         # TODO : convert to async/threading?
         write_to_file(website[SITE], title)
-        print(website[SITE], " : ", website[DOMAIN_NAME], "success!")
+        # print(website[SITE], " : ", website[DOMAIN_NAME], "success!")
+        print(website[SITE], " : ", website[DOMAIN_NAME], "\033[1;32msuccess!\033[m")
 
     except Exception as err:
         msg = website[SITE] + " : " + "FAILED!"
         # HINT : remember that -> writing to file is blocking
         # TODO : convert to async/threading?
         write_to_file(website[SITE], msg)
-        print(website[SITE], " : ", website[DOMAIN_NAME], "error!")
+        # print(website[SITE], " : ", website[DOMAIN_NAME], "error!")
+        print(website[SITE], " : ", website[DOMAIN_NAME], "\033[1;31merror!\033[m")
 
 
 # TODO : convert to async
