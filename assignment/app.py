@@ -27,6 +27,11 @@ def get_title(page: BeautifulSoup):
     if title is not None:
         return title.get_text()
     else:
+        # For some websites (e.g. Twitter): <link title="..." ... />
+        for i in page.find_all("link"):
+            if i.has_attr("title"):
+                return i["title"]
+
         raise Exception("nah")
 
 
