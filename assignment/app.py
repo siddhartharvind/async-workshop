@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import os, csv, time
 
+import asyncio
+
 """
 Assignment Instructions : 
 
@@ -37,7 +39,7 @@ def get_title(page: BeautifulSoup):
 
 # TODO : convert to async
 # Gets the html by making a GET request to given URL
-def get_html(link: str):
+async def get_html(link: str):
     # get page
     try:
         res = requests.get("https://" + link)
@@ -56,7 +58,7 @@ def write_to_file(sitename: str, title: str):
     # pass
 
     base_path = os.getcwd()
-    output_path = base_path + "/out/sync3"
+    output_path = base_path + "/out/async6"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -67,10 +69,10 @@ def write_to_file(sitename: str, title: str):
 
 # TODO : convert to async
 # scrape the given link synchronously
-def scrape(website: dict):
+async def scrape(website: dict):
     os.system("") # enables ANSI escape sequences in terminal
     try:
-        (html, err) = get_html(website[DOMAIN_NAME])
+        (html, err) = await get_html(website[DOMAIN_NAME])
 
         if err is not None:
             msg = website[SITE] + " : " + "FAILED!"
@@ -100,7 +102,7 @@ def scrape(website: dict):
 
 
 # TODO : convert to async
-def main():
+async def main():
     # print the process id
     print("PROCESS ID : ", os.getpid())
     time.sleep(2)
@@ -117,9 +119,17 @@ def main():
     csvgen = (row for row in open(dataset_path, "r"))
     next(csvgen) # to skip header row
 
-    for row in csvgen:
+    # for row in csvgen:
+    #     site, domain_name = row.strip().split(',')
+    #     scrape({ SITE: site, DOMAIN_NAME: domain_name })
+
+    async def scrape_row(row):
         site, domain_name = row.strip().split(',')
-        scrape({ SITE: site, DOMAIN_NAME: domain_name })
+        await scrape({ SITE: site, DOMAIN_NAME: domain_name })
+
+    tasks = [scrape_row(row) for row in csvgen]
+    responses = await asyncio.gather(*tasks)
 
 
-main()
+# main()
+asyncio.run(main())
