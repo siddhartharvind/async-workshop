@@ -132,7 +132,8 @@ async def main():
 
 
 # main()
-start = time.time()
-asyncio.run(main())
-end = time.time()
-print(f"Completed tasks in {end - start} seconds")
+if __name__ == "__main__":
+    start = time.time()
+    asyncio.run(main())
+    end = time.time()
+    print(f"Completed tasks in {end - start} seconds")
