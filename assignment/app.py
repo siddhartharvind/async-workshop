@@ -72,7 +72,7 @@ def write_to_file(sitename: str, title: str):
 # TODO : convert to async
 # scrape the given link synchronously
 def scrape(website: dict):
-    os.system("") # enables ANSI escape sequences in terminal
+
     try:
         (html, err) = get_html(website[DOMAIN_NAME])
 
@@ -163,6 +163,7 @@ def main():
 
 
 if __name__ == "__main__":
+    os.system("") # enables ANSI escape sequences in terminal
     start = time.time()
     main()
     end = time.time()
