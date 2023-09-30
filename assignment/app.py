@@ -60,7 +60,7 @@ def write_to_file(sitename: str, title: str):
     # pass
 
     base_path = os.getcwd()
-    output_path = base_path + "/out/sync7"
+    output_path = base_path + "/out/sync8"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -118,6 +118,12 @@ def main():
     # TODO : read csv of links in dictionary format
     # TODO : call the scrape function on them one by one
 
+    # Get number of urls -> number of threads
+    with open(dataset_path, "r") as f:
+        _ = next(f) # skip header row
+        n_threads = sum(1 for _ in f)
+
+
     csvgen = (row for row in open(dataset_path, "r"))
     next(csvgen) # to skip header row
 
@@ -145,7 +151,7 @@ def main():
         # This makes the main thread
         # wait for `thread` to finish.
     """
-    with ThreadPoolExecutor(max_workers = 8) as executor:
+    with ThreadPoolExecutor(max_workers = n_threads) as executor:
 
         for row in csvgen:
             site, domain_name = row.strip().split(',')
