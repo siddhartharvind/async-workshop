@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import os, csv, time
 
+import threading
+
 """
 Assignment Instructions : 
 
@@ -117,9 +119,29 @@ def main():
     csvgen = (row for row in open(dataset_path, "r"))
     next(csvgen) # to skip header row
 
+    threads = []
+
     for row in csvgen:
-        site, domain_name = row.strip().split(',')
-        scrape({ SITE: site, DOMAIN_NAME: domain_name })
+		site, domain_name = row.strip().split(',')
+		thread = threading.Thread(
+			target = scrape,
+			args = ({
+				SITE: site,
+				DOMAIN_NAME: domain_name,
+			}, ),
+			# `args` expects a tuple of arguments
+		)
+
+		thread.start()
+		threads.append(thread)
+
+        # scrape({ SITE: site, DOMAIN_NAME: domain_name })
+
+    for thread in threads:
+		thread.join()
+		# This makes the main thread
+		# wait for `thread` to finish.
+
 
 
 if __name__ == "__main__":
