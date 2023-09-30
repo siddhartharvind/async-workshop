@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import os, csv, time
 
 import threading
+from concurrent.futures import ThreadPoolExecutor
+
 
 """
 Assignment Instructions : 
@@ -58,7 +60,7 @@ def write_to_file(sitename: str, title: str):
     # pass
 
     base_path = os.getcwd()
-    output_path = base_path + "/out/sync6"
+    output_path = base_path + "/out/sync7"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -119,28 +121,38 @@ def main():
     csvgen = (row for row in open(dataset_path, "r"))
     next(csvgen) # to skip header row
 
+    """
     threads = []
 
     for row in csvgen:
-		site, domain_name = row.strip().split(',')
-		thread = threading.Thread(
-			target = scrape,
-			args = ({
-				SITE: site,
-				DOMAIN_NAME: domain_name,
-			}, ),
-			# `args` expects a tuple of arguments
-		)
+        site, domain_name = row.strip().split(',')
+        thread = threading.Thread(
+            target = scrape,
+            args = ({
+                SITE: site,
+                DOMAIN_NAME: domain_name,
+            }, ),
+            # `args` expects a tuple of arguments
+        )
 
-		thread.start()
-		threads.append(thread)
+        thread.start()
+        threads.append(thread)
 
         # scrape({ SITE: site, DOMAIN_NAME: domain_name })
 
     for thread in threads:
-		thread.join()
-		# This makes the main thread
-		# wait for `thread` to finish.
+        thread.join()
+        # This makes the main thread
+        # wait for `thread` to finish.
+    """
+    with ThreadPoolExecutor(max_workers = 8) as executor:
+
+        for row in csvgen:
+            site, domain_name = row.strip().split(',')
+            executor.submit(scrape, {
+                    SITE: site,
+                    DOMAIN_NAME: domain_name,
+            })
 
 
 
