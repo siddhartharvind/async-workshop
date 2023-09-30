@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import os, csv, time
 
+import asyncio
+
 """
 Assignment Instructions : 
 
@@ -37,10 +39,16 @@ def get_title(page: BeautifulSoup):
 
 # TODO : convert to async
 # Gets the html by making a GET request to given URL
-def get_html(link: str):
+async def get_html(link: str):
     # get page
     try:
-        res = requests.get("https://" + link)
+        # res = requests.get("https://" + link)
+        loop = asyncio.get_event_loop() # current event loop
+        res = await loop.run_in_executor(
+                None, requests.get, "https://%s" % link)
+        # Here, event loop is created by
+        # asyncio.run(main()) in the
+        # script guard
 
         if res is not None:
             return (res.content.decode("utf-8"), None)
@@ -56,7 +64,7 @@ def write_to_file(sitename: str, title: str):
     # pass
 
     base_path = os.getcwd()
-    output_path = base_path + "/out/sync6"
+    output_path = base_path + "/out/async10"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -67,10 +75,10 @@ def write_to_file(sitename: str, title: str):
 
 # TODO : convert to async
 # scrape the given link synchronously
-def scrape(website: dict):
+async def scrape(website: dict):
     os.system("") # enables ANSI escape sequences in terminal
     try:
-        (html, err) = get_html(website[DOMAIN_NAME])
+        (html, err) = await get_html(website[DOMAIN_NAME])
 
         if err is not None:
             msg = website[SITE] + " : " + "FAILED!"
@@ -100,7 +108,7 @@ def scrape(website: dict):
 
 
 # TODO : convert to async
-def main():
+async def main():
     # print the process id
     print("PROCESS ID : ", os.getpid())
     time.sleep(2)
@@ -117,13 +125,17 @@ def main():
     csvgen = (row for row in open(dataset_path, "r"))
     next(csvgen) # to skip header row
 
-    for row in csvgen:
-        site, domain_name = row.strip().split(',')
-        scrape({ SITE: site, DOMAIN_NAME: domain_name })
+    tasks = [scrape({ SITE: site, DOMAIN_NAME: domain_name })
+        for row in csvgen
+        for (site, domain_name) in [row.strip().split(',')]
+    ]
+
+    loop = asyncio.get_event_loop() # current running event loop
+    results = await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":
     start = time.time()
-    main()
+    asyncio.run(main())
     end = time.time()
     print(f"Completed tasks in {end - start} seconds")
