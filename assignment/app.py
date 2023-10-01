@@ -42,13 +42,11 @@ def get_title(page: BeautifulSoup):
 async def get_html(link: str):
     # get page
     try:
-        # res = requests.get("https://" + link)
         loop = asyncio.get_event_loop() # current event loop
         res = await loop.run_in_executor(
-                None, requests.get, "https://%s" % link)
-        # Here, event loop is created by
-        # asyncio.run(main()) in the
-        # script guard
+                None, lambda: requests.get("https://%s" % link, timeout=3))
+        # Here, event loop is created by asyncio.run(main())
+        # in the script guard.
 
         if res is not None:
             return (res.content.decode("utf-8"), None)
@@ -61,10 +59,8 @@ async def get_html(link: str):
 # Writes to given title to file synchronously
 def write_to_file(sitename: str, title: str):
     # TODO : write the title to a file in the /out directory named : <sitename>.txt
-    # pass
-
     base_path = os.getcwd()
-    output_path = base_path + "/out/async11"
+    output_path = base_path + "/out/async13"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -76,49 +72,21 @@ def write_to_file(sitename: str, title: str):
 # TODO : convert to async
 # scrape the given link synchronously
 async def scrape(website: dict):
-    os.system("") # enables ANSI escape sequences in terminal
     try:
         (html, err) = await get_html(website[DOMAIN_NAME])
-
         if err is not None:
-            """
-            msg = website[SITE] + " : " + "FAILED!"
-            # HINT : remember that -> writing to file is blocking
-            # TODO : convert to async/threading?
-            write_to_file(website[SITE], msg)
-            # print(website[SITE], " : ", website[DOMAIN_NAME], "error!")
-            print(website[SITE], " : ", website[DOMAIN_NAME], "\033[1;31merror!\033[m")
-            return
-            """
-            # Avoid needless repetition of code for same error handling logic
             raise Exception
-
 
         soup = BeautifulSoup(html, "html5lib")
 
         title = website[SITE] + " : TITLE -> " + get_title(soup)
-
         msg = title
-
         status_msg = "\033[1;32msuccess!\033[m"
-
-        # TODO : convert to async/threading?
-        ## write_to_file(website[SITE], title)
-        # print(website[SITE], " : ", website[DOMAIN_NAME], "success!")
-        ## print(website[SITE], " : ", website[DOMAIN_NAME], "\033[1;32msuccess!\033[m")
 
     except Exception as err:
         msg = website[SITE] + " : " + "FAILED!"
-
         status_msg = "\033[1;31merror!\033[m"
-        # HINT : remember that -> writing to file is blocking
-        # TODO : convert to async/threading?
-        ## write_to_file(website[SITE], msg)
-        # print(website[SITE], " : ", website[DOMAIN_NAME], "error!")
-        ## print(website[SITE], " : ", website[DOMAIN_NAME], "\033[1;31merror!\033[m")
 
-
-    # Avoid needless code logic repetition
     finally:
         # HINT : remember that -> writing to file is blocking
         # TODO : convert to async/threading?
@@ -140,7 +108,6 @@ async def main():
     # TODO : convert to async
     # TODO : read csv of links in dictionary format
     # TODO : call the scrape function on them one by one
-
     csvgen = (row for row in open(dataset_path, "r"))
     next(csvgen) # to skip header row
 
@@ -148,12 +115,11 @@ async def main():
         for row in csvgen
         for (site, domain_name) in [row.strip().split(',')]
     ]
-
-    # loop = asyncio.get_event_loop() # current running event loop
     results = await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":
+    os.system("") # enables ANSI escape sequences in terminal
     start = time.time()
     asyncio.run(main())
     end = time.time()
