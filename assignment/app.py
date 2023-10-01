@@ -60,7 +60,7 @@ def write_to_file(sitename: str, title: str):
     # pass
 
     base_path = os.getcwd()
-    output_path = base_path + "/out/sync9"
+    output_path = base_path + "/out/"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -80,27 +80,43 @@ def scrape(website: dict):
             msg = website[SITE] + " : " + "FAILED!"
             # HINT : remember that -> writing to file is blocking
             # TODO : convert to async/threading?
+            """
             write_to_file(website[SITE], msg)
             # print(website[SITE], " : ", website[DOMAIN_NAME], "error!")
             print(website[SITE], " : ", website[DOMAIN_NAME], "\033[1;31merror!\033[m")
             return
+            """
+            raise Exception
+
 
         soup = BeautifulSoup(html, "html5lib")
-
         title = website[SITE] + " : TITLE -> " + get_title(soup)
+        msg = title
+        status_msg = "\033[1;32msuccess!\033[m"
 
+        """
         # TODO : convert to async/threading?
         write_to_file(website[SITE], title)
         # print(website[SITE], " : ", website[DOMAIN_NAME], "success!")
         print(website[SITE], " : ", website[DOMAIN_NAME], "\033[1;32msuccess!\033[m")
+        """
+
 
     except Exception as err:
         msg = website[SITE] + " : " + "FAILED!"
+        status_msg = "\033[1;31merror!\033[m"
         # HINT : remember that -> writing to file is blocking
         # TODO : convert to async/threading?
+        """
         write_to_file(website[SITE], msg)
         # print(website[SITE], " : ", website[DOMAIN_NAME], "error!")
         print(website[SITE], " : ", website[DOMAIN_NAME], "\033[1;31merror!\033[m")
+        """
+
+    finally:
+        write_to_file(website[SITE], msg)
+        print(website[SITE], " : ", website[DOMAIN_NAME], status_msg)
+
 
 
 # TODO : convert to async
@@ -127,30 +143,6 @@ def main():
     csvgen = (row for row in open(dataset_path, "r"))
     next(csvgen) # to skip header row
 
-    """
-    threads = []
-
-    for row in csvgen:
-        site, domain_name = row.strip().split(',')
-        thread = threading.Thread(
-            target = scrape,
-            args = ({
-                SITE: site,
-                DOMAIN_NAME: domain_name,
-            }, ),
-            # `args` expects a tuple of arguments
-        )
-
-        thread.start()
-        threads.append(thread)
-
-        # scrape({ SITE: site, DOMAIN_NAME: domain_name })
-
-    for thread in threads:
-        thread.join()
-        # This makes the main thread
-        # wait for `thread` to finish.
-    """
     with ThreadPoolExecutor(max_workers = n_threads) as executor:
 
         for row in csvgen:
