@@ -44,7 +44,7 @@ def get_title(page: BeautifulSoup):
 def get_html(link: str):
     # get page
     try:
-        res = requests.get("https://" + link)
+        res = requests.get("https://" + link, timeout = 3)
 
         if res is not None:
             return (res.content.decode("utf-8"), None)
@@ -60,7 +60,7 @@ def write_to_file(sitename: str, title: str):
     # pass
 
     base_path = os.getcwd()
-    output_path = base_path + "/out/sync8"
+    output_path = base_path + "/out/sync9"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
